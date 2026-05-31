@@ -4,92 +4,130 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Train Log">
 <title>Train Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  :root{
-    --bg:#ffffff;--bg2:#f5f5f3;--bg3:#eeede9;
-    --text:#1a1a1a;--text2:#666;--text3:#999;
-    --border:rgba(0,0,0,0.1);--border2:rgba(0,0,0,0.2);
-    --accent:#1a1a1a;--accent-fg:#fff;
-    --success:#2d7a4f;--danger:#c0392b;--info:#1a5fa8;
-    --radius:10px;--radius-lg:14px;
-  }
-  @media(prefers-color-scheme:dark){
-    :root{
-      --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
-      --text:#f2f2f7;--text2:#aeaeb2;--text3:#636366;
-      --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
-      --accent:#f2f2f7;--accent-fg:#1c1c1e;
-    }
-  }
-  html,body{height:100%;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;color:var(--text);font-size:16px}
-  .app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto}
-  .content{flex:1;overflow-y:auto;padding:16px 16px 8px;-webkit-overflow-scrolling:touch}
-  .tabbar{display:flex;background:var(--bg);border-top:0.5px solid var(--border);padding:8px 0 max(8px,env(safe-area-inset-bottom));flex-shrink:0}
-  .tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--text3);font-size:10px;cursor:pointer;padding:4px 0;transition:color 0.15s}
-  .tabbar button.active{color:var(--accent)}
-  .tabbar button svg{width:22px;height:22px;stroke-width:1.8;fill:none;stroke:currentColor}
-  .section{display:none}
-  .section.active{display:block}
-  .card{background:var(--bg2);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px}
-  .card h3{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:14px}
-  .field{margin-bottom:14px}
-  .field:last-child{margin-bottom:0}
-  .field label{display:block;font-size:14px;font-weight:500;color:var(--text);margin-bottom:8px}
-  .field input,.field select{width:100%;padding:11px 13px;font-size:16px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);color:var(--text);-webkit-appearance:none;appearance:none}
-  .field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-  .scale-row{display:flex;align-items:center;gap:10px}
-  .scale-row input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--bg3);outline:none}
-  .scale-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--accent);cursor:pointer}
-  .scale-num{font-size:20px;font-weight:600;min-width:28px;text-align:right;color:var(--text)}
-  .scale-hint{font-size:12px;color:var(--text3);margin-top:6px;font-style:italic;min-height:16px}
-  .btn{display:block;width:100%;padding:14px;font-size:16px;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;text-align:center;transition:opacity 0.15s}
-  .btn-primary{background:var(--accent);color:var(--accent-fg)}
-  .btn-secondary{background:var(--bg2);color:var(--text);margin-top:8px}
-  .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger);margin-top:8px}
-  .btn:active{opacity:0.7}
-  .ex-block{background:var(--bg);border-radius:var(--radius);padding:12px;margin-bottom:10px;border:0.5px solid var(--border)}
-  .ex-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-  .ex-header input{flex:1;background:transparent;border:none;font-size:15px;font-weight:600;color:var(--text);padding:0;outline:none}
-  .ex-header button{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1;padding:0 4px}
-  .set-header{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 28px;gap:6px;margin-bottom:4px}
-  .set-header span{font-size:11px;color:var(--text3);text-align:center}
-  .set-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 28px;gap:6px;margin-bottom:6px;align-items:center}
-  .set-row input{padding:7px 4px;font-size:14px;background:var(--bg2);border:0.5px solid var(--border);border-radius:8px;color:var(--text);text-align:center;-webkit-appearance:none}
-  .set-row button{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0;line-height:1;text-align:center}
-  .add-set-btn{background:none;border:0.5px dashed var(--border2);border-radius:8px;color:var(--text3);font-size:13px;padding:7px;width:100%;cursor:pointer;margin-top:2px}
-  .add-ex-btn{background:none;border:0.5px dashed var(--border2);border-radius:var(--radius);color:var(--text3);font-size:14px;padding:13px;width:100%;cursor:pointer;margin-top:4px}
-  .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-  .metric-card{background:var(--bg2);border-radius:var(--radius);padding:14px}
-  .metric-card .mlabel{font-size:12px;color:var(--text3);margin-bottom:4px}
-  .metric-card .mval{font-size:26px;font-weight:700;color:var(--text);line-height:1}
-  .metric-card .munit{font-size:13px;color:var(--text2);font-weight:400}
-  .history-item{padding:12px 0;border-bottom:0.5px solid var(--border)}
-  .history-item:last-child{border-bottom:none}
-  .hi-row{display:flex;justify-content:space-between;align-items:baseline}
-  .hi-type{font-size:15px;font-weight:600}
-  .hi-date{font-size:12px;color:var(--text3)}
-  .hi-detail{font-size:13px;color:var(--text2);margin-top:3px}
-  .tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--bg3);color:var(--text2);margin-right:4px}
-  .bar-item{margin-bottom:10px}
-  .bar-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
-  .bar-row span:first-child{font-weight:500}
-  .bar-row span:last-child{color:var(--text2)}
-  .bar-track{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
-  .bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 0.4s}
-  .empty{font-size:14px;color:var(--text3);text-align:center;padding:24px 0}
-  .url-input{width:100%;padding:11px 13px;font-size:13px;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:monospace}
-  .status-msg{font-size:13px;margin-top:8px}
-  .status-ok{color:var(--success)}
-  .status-err{color:var(--danger)}
-  .instructions ol{padding-left:20px;font-size:14px;color:var(--text2);line-height:2.2}
-  .page-title{font-size:22px;font-weight:700;margin-bottom:20px;padding-top:4px}
-  .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--accent-fg);padding:11px 22px;border-radius:30px;font-size:14px;font-weight:500;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap;z-index:999}
-  .toast.show{opacity:1}
-  .divider{height:0.5px;background:var(--border);margin:4px 0 14px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --black:#080808;
+  --dark:#111113;
+  --card:#161618;
+  --card2:#1e1e21;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(0,170,255,0.25);
+  --blue:#00aaff;
+  --blue-dim:rgba(0,170,255,0.12);
+  --blue-glow:rgba(0,170,255,0.3);
+  --text:#f0f0f0;
+  --text2:#888;
+  --text3:#444;
+  --success:#00e676;
+  --danger:#ff3b3b;
+  --radius:10px;
+  --radius-lg:16px;
+}
+html,body{height:100%;background:var(--black);font-family:'DM Mono',monospace;color:var(--text);font-size:15px}
+.app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto;background:var(--black)}
+.content{flex:1;overflow-y:auto;padding:20px 16px 16px;-webkit-overflow-scrolling:touch}
+
+/* TOP BAR */
+.topbar{padding:max(52px,env(safe-area-inset-top)) 20px 0;flex-shrink:0;background:var(--black)}
+
+/* TAB BAR */
+.tabbar{display:flex;background:var(--dark);border-top:1px solid var(--border);padding:10px 0 max(10px,env(safe-area-inset-bottom));flex-shrink:0}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;color:var(--text3);font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;padding:4px 0;transition:all 0.2s}
+.tabbar button.active{color:var(--blue)}
+.tabbar button svg{width:20px;height:20px;stroke-width:1.8;fill:none;stroke:currentColor}
+
+/* SECTIONS */
+.section{display:none}
+.section.active{display:block}
+
+/* PAGE TITLE */
+.page-title{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;letter-spacing:-0.01em;text-transform:uppercase;margin-bottom:20px;color:var(--text);line-height:1}
+.page-title span{color:var(--blue)}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue-glow),transparent);opacity:0}
+.card:focus-within::before{opacity:1}
+.card h3{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:16px}
+
+/* FIELDS */
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;color:var(--text2);margin-bottom:8px;letter-spacing:0.05em}
+.field input,.field select{width:100%;padding:12px 14px;font-size:15px;font-family:'DM Mono',monospace;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);-webkit-appearance:none;appearance:none;transition:border-color 0.2s,box-shadow 0.2s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-dim)}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300aaff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+
+/* SCALES */
+.scale-row{display:flex;align-items:center;gap:12px}
+.scale-row input[type=range]{flex:1;-webkit-appearance:none;height:3px;border-radius:2px;background:var(--card2);outline:none;cursor:pointer}
+.scale-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--blue);cursor:pointer;box-shadow:0 0 12px var(--blue-glow);border:2px solid var(--black)}
+.scale-num{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;min-width:36px;text-align:right;color:var(--blue);line-height:1}
+.scale-hint{font-size:11px;color:var(--text3);margin-top:8px;min-height:14px;font-style:italic}
+
+/* BUTTONS */
+.btn{display:block;width:100%;padding:15px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;border-radius:var(--radius);border:none;cursor:pointer;text-align:center;transition:all 0.15s}
+.btn-primary{background:var(--blue);color:var(--black);box-shadow:0 0 20px var(--blue-glow)}
+.btn-primary:active{opacity:0.8;transform:scale(0.98)}
+.btn-secondary{background:var(--card);color:var(--text2);border:1px solid var(--border);margin-top:8px}
+.btn-secondary:active{opacity:0.7}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid rgba(255,59,59,0.3);margin-top:8px}
+
+/* EXERCISES */
+.ex-block{background:var(--card2);border-radius:var(--radius);padding:14px;margin-bottom:10px;border:1px solid var(--border)}
+.ex-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ex-header input{flex:1;background:transparent;border:none;font-size:14px;font-weight:500;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:var(--text);padding:0;outline:none}
+.ex-header input::placeholder{color:var(--text3)}
+.ex-header button{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1;padding:0 4px}
+.set-header{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 28px;gap:6px;margin-bottom:6px}
+.set-header span{font-size:10px;color:var(--text3);text-align:center;letter-spacing:0.08em;font-family:'Barlow Condensed',sans-serif;font-weight:600;text-transform:uppercase}
+.set-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 28px;gap:6px;margin-bottom:6px;align-items:center}
+.set-row input{padding:8px 4px;font-size:14px;font-family:'DM Mono',monospace;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);text-align:center;-webkit-appearance:none;transition:border-color 0.15s}
+.set-row input:focus{outline:none;border-color:var(--blue)}
+.set-row button{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0;line-height:1;text-align:center}
+.add-set-btn{background:none;border:1px dashed rgba(0,170,255,0.2);border-radius:8px;color:var(--blue);font-size:12px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:8px;width:100%;cursor:pointer;margin-top:4px;transition:all 0.15s}
+.add-set-btn:active{background:var(--blue-dim)}
+.add-ex-btn{background:none;border:1px dashed rgba(0,170,255,0.2);border-radius:var(--radius);color:var(--blue);font-size:13px;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:15px;width:100%;cursor:pointer;margin-top:4px;transition:all 0.15s}
+.add-ex-btn:active{background:var(--blue-dim)}
+
+/* DASHBOARD */
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden}
+.metric-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--blue);opacity:0.3}
+.metric-card .mlabel{font-size:10px;color:var(--text3);margin-bottom:6px;letter-spacing:0.1em;font-family:'Barlow Condensed',sans-serif;font-weight:600;text-transform:uppercase}
+.metric-card .mval{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:var(--text);line-height:1}
+.metric-card .munit{font-size:16px;color:var(--text2);font-weight:600}
+.history-item{padding:14px 0;border-bottom:1px solid var(--border)}
+.history-item:last-child{border-bottom:none}
+.hi-row{display:flex;justify-content:space-between;align-items:baseline}
+.hi-type{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:var(--blue)}
+.hi-date{font-size:11px;color:var(--text3)}
+.hi-detail{font-size:12px;color:var(--text2);margin-top:4px}
+.bar-item{margin-bottom:12px}
+.bar-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.bar-row span:first-child{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.03em;text-transform:uppercase}
+.bar-row span:last-child{color:var(--blue);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px}
+.bar-track{height:4px;background:var(--card2);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),rgba(0,170,255,0.5));border-radius:2px;transition:width 0.5s cubic-bezier(0.4,0,0.2,1)}
+.empty{font-size:13px;color:var(--text3);text-align:center;padding:28px 0;font-style:italic}
+
+/* SETTINGS */
+.url-input{width:100%;padding:12px 14px;font-size:12px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'DM Mono',monospace;transition:border-color 0.2s}
+.url-input:focus{outline:none;border-color:var(--blue)}
+.status-msg{font-size:12px;margin-top:8px;font-style:italic}
+.status-ok{color:var(--success)}
+.status-err{color:var(--danger)}
+.instructions ol{padding-left:20px;font-size:13px;color:var(--text2);line-height:2.4}
+.instructions strong{color:var(--text)}
+
+/* TOAST */
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--blue);color:var(--black);padding:11px 24px;border-radius:30px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap;z-index:999;box-shadow:0 0 20px var(--blue-glow)}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
@@ -98,12 +136,12 @@
 
     <!-- DAILY -->
     <div id="sec-daily" class="section active">
-      <div class="page-title">Daily log</div>
+      <div class="page-title">Daily<br><span>Log</span></div>
       <div class="card">
         <h3>Sleep</h3>
         <div class="field">
           <label>Hours slept</label>
-          <input type="number" id="d-sleep-h" min="0" max="24" step="0.5" placeholder="e.g. 7.5" inputmode="decimal">
+          <input type="text" id="d-sleep-h" inputmode="text" placeholder="e.g. 7,5">
         </div>
         <div class="field">
           <label>Sleep quality</label>
@@ -157,11 +195,11 @@
         </div>
         <div class="field">
           <label>Caffeine (mg)</label>
-          <input type="number" id="s-caff" min="0" max="1000" placeholder="e.g. 300" inputmode="numeric">
+          <input type="text" id="s-caff" inputmode="numeric" placeholder="e.g. 300">
         </div>
         <div class="field">
           <label>Duration (min)</label>
-          <input type="number" id="s-dur" min="0" max="300" placeholder="e.g. 60" inputmode="numeric">
+          <input type="text" id="s-dur" inputmode="numeric" placeholder="e.g. 60">
         </div>
       </div>
       <div class="card">
@@ -170,13 +208,13 @@
         <button class="add-ex-btn" onclick="addEx()">+ Add exercise</button>
       </div>
       <button class="btn btn-primary" onclick="saveSession()">Save session</button>
-      <div style="height:16px"></div>
+      <div style="height:20px"></div>
     </div>
 
     <!-- DASHBOARD -->
     <div id="sec-dashboard" class="section">
       <div class="page-title">Stats</div>
-      <div class="metric-grid" id="dash-metrics">
+      <div class="metric-grid">
         <div class="metric-card"><div class="mlabel">Avg sleep</div><div class="mval" id="d-sleep">—</div></div>
         <div class="metric-card"><div class="mlabel">Avg stress</div><div class="mval" id="d-stress-v">—</div></div>
         <div class="metric-card"><div class="mlabel">Sessions</div><div class="mval" id="d-sess">—</div></div>
@@ -193,7 +231,7 @@
       <button class="btn btn-secondary" onclick="exportCSV()">Export CSV</button>
       <button class="btn btn-secondary" onclick="syncSheets()">Sync to Google Sheets</button>
       <div class="status-msg" id="sync-status"></div>
-      <div style="height:16px"></div>
+      <div style="height:20px"></div>
     </div>
 
     <!-- SETTINGS -->
@@ -210,20 +248,20 @@
       <div class="card instructions">
         <h3>How to set up sync</h3>
         <ol>
-          <li>Open <strong>Google Sheets</strong> and create a new sheet</li>
+          <li>Open <strong>Google Sheets</strong>, create a new sheet</li>
           <li>Go to <strong>Extensions → Apps Script</strong></li>
-          <li>Delete existing code and paste the script Claude gave you</li>
+          <li>Delete existing code, paste the script</li>
           <li>Click <strong>Deploy → New deployment</strong></li>
-          <li>Type: Web app · Execute as: Me · Who has access: Anyone</li>
+          <li>Type: Web app · Execute as: Me · Access: Anyone</li>
           <li>Copy the URL and paste it above</li>
         </ol>
       </div>
       <div class="card">
         <h3>Data</h3>
-        <p style="font-size:14px;color:var(--text2);margin-bottom:12px">Total entries stored: <strong id="total-count">0</strong></p>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px">Total entries: <strong id="total-count" style="color:var(--blue)">0</strong></p>
         <button class="btn btn-danger" onclick="clearData()">Clear all data</button>
       </div>
-      <div style="height:16px"></div>
+      <div style="height:20px"></div>
     </div>
 
   </div>
@@ -253,17 +291,14 @@
 <script>
 const SL={1:'Woke up multiple times, feel terrible',2:'Woke up multiple times, feel terrible',3:'Woke up multiple times, feel terrible',4:'Some interruptions, not fully rested',5:'Some interruptions, not fully rested',6:'Some interruptions, not fully rested',7:'Slept well, reasonably rested',8:'Slept well, reasonably rested',9:'Slept deeply, woke up naturally',10:'Slept deeply, woke up naturally'};
 const STR={1:'Calm, relaxed, nothing weighing on you',2:'Calm, relaxed, nothing weighing on you',3:'Calm, relaxed, nothing weighing on you',4:'Some background stress, manageable',5:'Some background stress, manageable',6:'Some background stress, manageable',7:'Noticeably stressed, mind is busy',8:'Noticeably stressed, mind is busy',9:'Overwhelmed, hard to focus on anything',10:'Overwhelmed, hard to focus on anything'};
-const SO={1:'Fresh, nothing noticeable',2:'Fresh, nothing noticeable',3:'Fresh, nothing noticeable',4:'Noticeable but doesn\'t limit movement',5:'Noticeable but doesn\'t limit movement',6:'Noticeable but doesn\'t limit movement',7:'Significant, movement affected',8:'Significant, movement affected',9:'Very painful, major limitation',10:'Very painful, major limitation'};
-
+const SO={1:'Fresh, nothing noticeable',2:'Fresh, nothing noticeable',3:'Fresh, nothing noticeable',4:"Noticeable but doesn't limit movement",5:"Noticeable but doesn't limit movement",6:"Noticeable but doesn't limit movement",7:'Significant, movement affected',8:'Significant, movement affected',9:'Very painful, major limitation',10:'Very painful, major limitation'};
 let exCount=0;
-
 function upd(inId,outId,lblId,type){
   const v=+document.getElementById(inId).value;
   document.getElementById(outId).textContent=v;
   const map={sleep:SL,stress:STR,sore:SO};
   if(map[type]) document.getElementById(lblId).textContent=map[type][v];
 }
-
 function tab(name,btn){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.tabbar button').forEach(b=>b.classList.remove('active'));
@@ -273,48 +308,34 @@ function tab(name,btn){
   if(name==='dashboard') renderDash();
   if(name==='settings') renderSettings();
 }
-
 function addEx(){
   const id=exCount++;
   const div=document.createElement('div');
   div.className='ex-block';
   div.id='ex-'+id;
-  div.innerHTML=`<div class="ex-header">
-    <input type="text" placeholder="Exercise name" id="exn-${id}">
-    <button onclick="document.getElementById('ex-${id}').remove()">×</button>
-  </div>
-  <div class="set-header"><span>Sets</span><span>Reps</span><span>kg</span><span>RPE</span><span></span></div>
-  <div id="exs-${id}"></div>
-  <button class="add-set-btn" onclick="addSet(${id})">+ set</button>`;
+  div.innerHTML=`<div class="ex-header"><input type="text" placeholder="Exercise name" id="exn-${id}"><button onclick="document.getElementById('ex-${id}').remove()">×</button></div><div class="set-header"><span>Sets</span><span>Reps</span><span>kg</span><span>RPE</span><span></span></div><div id="exs-${id}"></div><button class="add-set-btn" onclick="addSet(${id})">+ set</button>`;
   document.getElementById('ex-list').appendChild(div);
   addSet(id);
 }
-
 function addSet(exId){
   const cont=document.getElementById('exs-'+exId);
   const si=cont.children.length;
   const row=document.createElement('div');
   row.className='set-row';
-  row.innerHTML=`<input type="number" inputmode="numeric" placeholder="2" min="1" max="20" id="ss-${exId}-${si}">
-  <input type="number" inputmode="numeric" placeholder="8" min="1" max="100" id="sr-${exId}-${si}">
-  <input type="number" inputmode="decimal" placeholder="60" min="0" max="500" step="0.5" id="sk-${exId}-${si}">
-  <input type="number" inputmode="decimal" placeholder="8" min="1" max="10" step="0.5" id="sp-${exId}-${si}">
-  <button onclick="this.parentElement.remove()">×</button>`;
+  row.innerHTML=`<input type="text" inputmode="numeric" placeholder="2" id="ss-${exId}-${si}"><input type="text" inputmode="numeric" placeholder="8" id="sr-${exId}-${si}"><input type="text" inputmode="text" placeholder="60" id="sk-${exId}-${si}"><input type="text" inputmode="text" placeholder="8" id="sp-${exId}-${si}"><button onclick="this.parentElement.remove()">×</button>`;
   cont.appendChild(row);
 }
-
+function num(id){const v=document.getElementById(id)?.value||'0';return parseFloat(v.replace(',','.'))||0}
 function getData(){return JSON.parse(localStorage.getItem('tl_v2')||'{"daily":[],"sessions":[]}')}
 function saveData(d){localStorage.setItem('tl_v2',JSON.stringify(d))}
-
 function saveDaily(){
   const h=document.getElementById('d-sleep-h').value;
   if(!h){toast('Enter sleep hours');return}
-  const entry={date:today(),sleepH:+h,sleepQ:+document.getElementById('d-sleep-q').value,stress:+document.getElementById('d-stress').value};
+  const entry={date:today(),sleepH:num('d-sleep-h'),sleepQ:+document.getElementById('d-sleep-q').value,stress:+document.getElementById('d-stress').value};
   const d=getData();d.daily.push(entry);saveData(d);
   document.getElementById('d-sleep-h').value='';
   toast('Daily log saved ✓');
 }
-
 function saveSession(){
   const date=document.getElementById('s-date').value;
   if(!date){toast('Select a date');return}
@@ -325,15 +346,11 @@ function saveSession(){
     const sets=[];
     const cont=document.getElementById('exs-'+id);
     if(cont) Array.from(cont.children).forEach((_,si)=>{
-      const s=+document.getElementById('ss-'+id+'-'+si)?.value||0;
-      const r=+document.getElementById('sr-'+id+'-'+si)?.value||0;
-      const k=+document.getElementById('sk-'+id+'-'+si)?.value||0;
-      const p=+document.getElementById('sp-'+id+'-'+si)?.value||0;
-      sets.push({sets:s,reps:r,kg:k,rpe:p});
+      sets.push({sets:num('ss-'+id+'-'+si),reps:num('sr-'+id+'-'+si),kg:num('sk-'+id+'-'+si),rpe:num('sp-'+id+'-'+si)});
     });
     exercises.push({name,sets});
   });
-  const sess={date,type:document.getElementById('s-type').value,sore:+document.getElementById('s-sore').value,caff:+document.getElementById('s-caff').value||0,dur:+document.getElementById('s-dur').value||0,exercises};
+  const sess={date,type:document.getElementById('s-type').value,sore:+document.getElementById('s-sore').value,caff:num('s-caff'),dur:num('s-dur'),exercises};
   const d=getData();d.sessions.push(sess);saveData(d);
   document.getElementById('ex-list').innerHTML='';
   exCount=0;
@@ -342,7 +359,6 @@ function saveSession(){
   addEx();
   toast('Session saved ✓');
 }
-
 function renderDash(){
   const d=getData();
   const cutoff=new Date(Date.now()-7*864e5).toISOString().slice(0,10);
@@ -358,14 +374,14 @@ function renderDash(){
   document.getElementById('d-caff').innerHTML=aca?Math.round(aca)+'<span class="munit">mg</span>':'—';
   const hist=document.getElementById('dash-history');
   const last=d.sessions.slice(-5).reverse();
-  hist.innerHTML=last.length?last.map(s=>`<div class="history-item"><div class="hi-row"><span class="hi-type">${s.type}</span><span class="hi-date">${s.date}</span></div><div class="hi-detail">${s.exercises.length} exercises &middot; ${s.dur}min &middot; ${s.caff}mg caff &middot; soreness ${s.sore}/10</div></div>`).join(''):'<div class="empty">No sessions yet</div>';
+  hist.innerHTML=last.length?last.map(s=>`<div class="history-item"><div class="hi-row"><span class="hi-type">${s.type}</span><span class="hi-date">${s.date}</span></div><div class="hi-detail">${s.exercises.length} exercises · ${s.dur}min · ${s.caff}mg caff · soreness ${s.sore}/10</div></div>`).join(''):'<div class="empty">No sessions yet</div>';
   const rpeEl=document.getElementById('dash-rpe');
   const rpeMap={};
   d.sessions.forEach(s=>{const vals=s.exercises.flatMap(e=>e.sets.map(st=>st.rpe)).filter(v=>v>0);if(vals.length)(rpeMap[s.type]=rpeMap[s.type]||[]).push(...vals)});
   const types=['Push','Pull','Legs','Upper','Lower'].filter(t=>rpeMap[t]);
-  rpeEl.innerHTML=types.length?types.map(t=>{const a=avg(rpeMap[t]);return`<div class="bar-item"><div class="bar-row"><span>${t}</span><span>${a.toFixed(1)}/10</span></div><div class="bar-track"><div class="bar-fill" style="width:${a*10}%"></div></div></div>`}).join(''):'<div class="empty">No RPE data yet</div>';
+  const avgFn=arr=>arr.reduce((a,v)=>a+v,0)/arr.length;
+  rpeEl.innerHTML=types.length?types.map(t=>{const a=avgFn(rpeMap[t]);return`<div class="bar-item"><div class="bar-row"><span>${t}</span><span>${a.toFixed(1)}/10</span></div><div class="bar-track"><div class="bar-fill" style="width:${a*10}%"></div></div></div>`}).join(''):'<div class="empty">No RPE data yet</div>';
 }
-
 function renderSettings(){
   const d=getData();
   document.getElementById('total-count').textContent=d.daily.length+d.sessions.length;
@@ -373,16 +389,14 @@ function renderSettings(){
   document.getElementById('sheet-url').value=url;
   if(url) document.getElementById('url-status').textContent='URL saved';
 }
-
 function exportCSV(){
   const d=getData();
   let csv='Type,Date,SleepH,SleepQ,Stress,SessionType,Soreness,Caffeine,Duration,Exercise,Sets,Reps,KG,RPE\n';
   d.daily.forEach(x=>csv+=`Daily,${x.date},${x.sleepH},${x.sleepQ},${x.stress},,,,,,,,\n`);
-  d.sessions.forEach(s=>s.exercises.forEach(e=>e.sets.forEach(st=>csv+=`Session,${s.date},,,, ${s.type},${s.sore},${s.caff},${s.dur},${e.name},${st.sets},${st.reps},${st.kg},${st.rpe}\n`)));
+  d.sessions.forEach(s=>s.exercises.forEach(e=>e.sets.forEach(st=>csv+=`Session,${s.date},,,,${s.type},${s.sore},${s.caff},${s.dur},${e.name},${st.sets},${st.reps},${st.kg},${st.rpe}\n`)));
   const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv'})),download:'trainlog_export.csv'});
   a.click();toast('CSV exported');
 }
-
 async function syncSheets(){
   const url=localStorage.getItem('tl_sheet_url');
   if(!url){toast('Add your Apps Script URL in Setup');return}
@@ -391,23 +405,19 @@ async function syncSheets(){
   try{
     await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(getData())});
     el.textContent='Synced successfully';el.className='status-msg status-ok';
-    toast('Synced to Google Sheets ✓');
+    toast('Synced ✓');
   }catch(e){el.textContent='Sync failed — check your URL';el.className='status-msg status-err';}
 }
-
 function saveUrl(){
   const url=document.getElementById('sheet-url').value.trim();
   localStorage.setItem('tl_sheet_url',url);
   document.getElementById('url-status').textContent=url?'URL saved':'';
 }
-
 function clearData(){
   if(confirm('Delete all data? This cannot be undone.')){localStorage.removeItem('tl_v2');toast('Data cleared');renderDash();renderSettings();}
 }
-
 function today(){return new Date().toISOString().slice(0,10)}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
-
 window.onload=()=>{
   document.getElementById('s-date').value=today();
   const url=localStorage.getItem('tl_sheet_url')||'';
